@@ -1,4 +1,5 @@
-﻿const ui = { snapshot: null };
+﻿const sessionId = createSessionId();
+const ui = { snapshot: null };
 
 const els = {
   form: document.querySelector("#passport-form"),
@@ -31,9 +32,12 @@ function readFormPayload() {
 }
 
 async function postJson(path, body = {}) {
-  const response = await fetch(path, {
+  const response = await fetch(withSession(path), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "X-Flyta-Session": sessionId,
+    },
     body: JSON.stringify(body),
   });
   const data = await response.json();
@@ -43,12 +47,14 @@ async function postJson(path, body = {}) {
 }
 
 async function getState() {
-  const response = await fetch("/api/state");
+  const response = await fetch(withSession("/api/state"), {
+    headers: { "X-Flyta-Session": sessionId },
+  });
   handleSnapshot(await response.json());
 }
 
 function connectEventStream() {
-  const events = new EventSource("/api/events");
+  const events = new EventSource(withSession("/api/events"));
   events.onopen = () => setStreamStatus("Live", "ready");
   events.addEventListener("state", (event) => {
     const payload = JSON.parse(event.data);
@@ -104,10 +110,15 @@ function renderEns(ens, isResolving) {
 function createEnsRecordList(ens) {
   const records = [
     ["network", ens.network || "sepolia"],
+    ["source", ens.source || "unknown"],
     ["owner", ens.owner || "not found"],
     ["resolver", ens.resolver || "not found"],
     ["addr", ens.address || "not set"],
   ];
+
+  if (ens.expiryDate) {
+    records.push(["expires", new Date(ens.expiryDate).toLocaleDateString()]);
+  }
 
   if (Array.isArray(ens.textRecords)) {
     for (const record of ens.textRecords) {
@@ -136,7 +147,7 @@ function renderPassport(passport) {
 
   els.passportCards.innerHTML = cards
     .map(([label, value]) => `<article class="passport-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`)
-    .join("") + `<article class="passport-card wide"><span>Checklist</span><ul>${passport.checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></article>`;
+    .join("");
 
   els.passportJson.textContent = JSON.stringify(passport, null, 2);
 }
@@ -158,6 +169,16 @@ function renderActivity(activity) {
 function setStreamStatus(label, className) {
   els.streamStatus.textContent = label;
   els.streamStatus.className = `status-chip ${className}`;
+}
+
+function withSession(path) {
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}sessionId=${encodeURIComponent(sessionId)}`;
+}
+
+function createSessionId() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 async function createPassport(event) {
@@ -202,3 +223,4 @@ els.form.addEventListener("submit", createPassport);
 els.copyPassport.addEventListener("click", copyPassport);
 connectEventStream();
 getState();
+

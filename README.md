@@ -4,6 +4,8 @@ A narrowed ETHGlobal project for the **Integrate ENS** pool prize.
 
 Flyta ENS Passport uses a Sepolia ENS name as the public identity for a relocation profile. A user enters an ENS name plus simple move details, the backend resolves ENS records on Sepolia, and the app creates a lightweight relocation passport that can be shown in a demo video.
 
+The backend supports both the stable Sepolia ENS registry and the ENS v2 dev registry used by `app.ens.dev`. That matters because `app.ens.dev` shows a notice that ENS v2 is in active development and uses a newer Sepolia deployment.
+
 ## Scope
 
 This project intentionally targets only:
@@ -17,6 +19,7 @@ It avoids extra sponsor tracks and keeps the demo simple, functional, and clearl
 The app includes ENS-specific code and a functional demo path:
 
 - Backend resolves user-provided ENS names on Sepolia.
+- Backend falls back to the `app.ens.dev` ENS v2 dev registry for names registered there.
 - Backend reads registry owner, resolver, address, and text records.
 - UI works with any ENS name typed into the form.
 - Flyta concept is preserved through a relocation passport generated from ENS identity plus move context.
@@ -61,13 +64,16 @@ Use either faucet:
 
 ## Register Or Use A Sepolia ENS Name
 
-Use the Sepolia ENS app:
+Use either Sepolia ENS app:
 
 ```text
 https://sepolia.app.ens.domains
+https://app.ens.dev
 ```
 
-For the cleanest demo, use a name you control and set at least one address record. Optional text records make the demo nicer:
+For the cleanest demo, use a name you control. If you registered on `app.ens.dev`, Flyta should show the source as `app-ens-dev-v2-registry`.
+
+Optional text records make the demo nicer when available:
 
 ```text
 url=https://your-demo-url.example

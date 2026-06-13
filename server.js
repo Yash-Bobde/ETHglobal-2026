@@ -8,7 +8,8 @@ const root = __dirname;
 loadLocalEnv(root);
 
 const port = Number(process.env.PORT || 3007);
-const sseClients = new Set();
+const sessions = new Map();
+const sessionClients = new Map();
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -16,13 +17,27 @@ const mimeTypes = {
   ".json": "application/json; charset=utf-8",
 };
 
-const engine = createPassportEngine((event, payload) => {
-  broadcast(event, payload);
-});
-
-function broadcast(event, payload) {
+function broadcast(sessionId, event, payload) {
   const message = `event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
-  for (const client of sseClients) client.write(message);
+  for (const client of sessionClients.get(sessionId) || []) client.write(message);
+}
+
+function getEngine(sessionId) {
+  if (!sessions.has(sessionId)) {
+    sessions.set(
+      sessionId,
+      createPassportEngine((event, payload) => {
+        broadcast(sessionId, event, payload);
+      }),
+    );
+  }
+  return sessions.get(sessionId);
+}
+
+function getSessionId(request, url) {
+  const raw = url.searchParams.get("sessionId") || request.headers["x-flyta-session"];
+  if (typeof raw === "string" && /^[a-zA-Z0-9_-]{8,80}$/.test(raw)) return raw;
+  return "default";
 }
 
 function safeJoin(base, requestPath) {
@@ -66,7 +81,8 @@ function readJson(request) {
   });
 }
 
-function handleEvents(request, response) {
+function handleEvents(request, response, sessionId) {
+  const engine = getEngine(sessionId);
   response.writeHead(200, {
     "Content-Type": "text/event-stream; charset=utf-8",
     "Cache-Control": "no-cache, no-transform",
@@ -74,11 +90,21 @@ function handleEvents(request, response) {
     "X-Accel-Buffering": "no",
   });
   response.write(`event: state\ndata: ${JSON.stringify({ state: engine.snapshot() })}\n\n`);
-  sseClients.add(response);
-  request.on("close", () => sseClients.delete(response));
+  if (!sessionClients.has(sessionId)) sessionClients.set(sessionId, new Set());
+  sessionClients.get(sessionId).add(response);
+  request.on("close", () => {
+    const clients = sessionClients.get(sessionId);
+    if (!clients) return;
+    clients.delete(response);
+    if (clients.size === 0) sessionClients.delete(sessionId);
+  });
 }
 
-async function handleApi(request, response, pathname) {
+async function handleApi(request, response, url) {
+  const pathname = url.pathname;
+  const sessionId = getSessionId(request, url);
+  const engine = getEngine(sessionId);
+
   try {
     if (request.method === "GET" && pathname === "/api/state") {
       sendJson(response, engine.snapshot());
@@ -86,7 +112,7 @@ async function handleApi(request, response, pathname) {
     }
 
     if (request.method === "GET" && pathname === "/api/events") {
-      handleEvents(request, response);
+      handleEvents(request, response, sessionId);
       return;
     }
 
@@ -144,7 +170,7 @@ function handleStatic(request, response) {
 const server = http.createServer((request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
   if (url.pathname.startsWith("/api/")) {
-    handleApi(request, response, url.pathname);
+    handleApi(request, response, url);
     return;
   }
   handleStatic(request, response);

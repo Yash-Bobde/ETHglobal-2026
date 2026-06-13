@@ -30,6 +30,7 @@ a { color: inherit; }
 .topbar nav a { border-radius: 999px; color: var(--slate); font-size: 14px; font-weight: 800; padding: 8px 11px; text-decoration: none; }
 .topbar nav a:hover { background: var(--cloud); color: var(--ink); }
 main { display: grid; gap: 22px; margin: 0 auto; max-width: 1180px; padding: 28px clamp(18px, 4vw, 48px) 56px; }
+.site-footer { color: var(--slate); font-size: 14px; font-weight: 800; padding: 0 clamp(18px, 4vw, 48px) 34px; text-align: center; }
 .hero { align-items: stretch; background: linear-gradient(135deg, rgba(20,33,61,0.96), rgba(37,99,235,0.82)); color: var(--white); overflow: hidden; }
 .panel, .hero { border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: clamp(20px, 4vw, 34px); }
 .panel { background: var(--white); }

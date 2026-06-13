@@ -27,9 +27,13 @@ const bundle = Object.values(files).join("\n");
 const checks = [
   ["Focused ENS branding", files["index.html"].includes("Flyta ENS Passport")],
   ["Sepolia ENS adapter", files["src/backend/ens-sepolia.js"].includes("ENS_SEPOLIA")],
+  ["app.ens.dev v2 fallback", files["src/backend/ens-sepolia.js"].includes("app-ens-dev-v2-registry")],
+  ["ENS v2 dev registry address", files["src/backend/ens-sepolia.js"].includes("0xdedb92913a25abe1f7bcdd85d8a344a43b398b67")],
   ["ENS resolve route", files["server.js"].includes("/api/ens/resolve")],
   ["Passport route", files["server.js"].includes("/api/passport")],
   ["Real-time EventSource client", files["src/app.js"].includes("EventSource")],
+  ["Per-page session IDs", files["src/app.js"].includes("createSessionId")],
+  ["Session-isolated backend state", files["server.js"].includes("getSessionId") && files["server.js"].includes("sessions = new Map")],
   ["No old multi-track routes", !bundle.includes("/api/" + "tasks/run") && !bundle.includes("/api/" + "wallet/authorize")],
   ["README pool-prize scope", files["README.md"].includes("Integrate ENS")],
 ];
