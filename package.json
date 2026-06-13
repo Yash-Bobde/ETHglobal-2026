@@ -1,0 +1,24 @@
+{
+  "name": "flyta-hackathon",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hackathon-oriented Flyta Move Agent demo for ETHGlobal New York 2026 prize tracks.",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "check": "node scripts/smoke-check.js"
+  },
+  "keywords": [
+    "ethglobal",
+    "ai-agent",
+    "ens",
+    "dynamic",
+    "arc",
+    "circle",
+    "relocation"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "viem": "^2.52.2"
+  }
+}

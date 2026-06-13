@@ -1,0 +1,129 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flyta Move Agent</title>
+    <meta name="description" content="Hackathon-oriented Flyta AI rebuild with ENS agent identity, Dynamic-style wallet policy, and Arc-style stablecoin payments." />
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#app" aria-label="Flyta Move Agent home">
+        <span class="brand-mark">F</span>
+        <span><strong>Flyta Move Agent</strong><small>ETHGlobal NY 2026 demo</small></span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#agent">Agent</a>
+        <a href="#tasks">Tasks</a>
+        <a href="#receipts">Receipts</a>
+        <a href="#judge">Judge packet</a>
+      </nav>
+    </header>
+
+    <main id="app">
+      <section class="hero panel-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">Hackathon build: 3 prize targets only</p>
+          <h1>Relocation agents that can prove who they are and pay for work.</h1>
+          <p class="lede">Flyta helps a job mover compare neighborhoods, request moving services, and pay for verified data through a named AI agent with wallet controls and receipts.</p>
+          <div class="hero-actions">
+            <button id="runFullDemo" class="primary-action">Run full demo</button>
+            <button id="resetDemo" class="secondary-action">Reset</button>
+          </div>
+        </div>
+        <aside class="strategy-card" aria-label="Prize strategy">
+          <p class="card-label">Prize strategy</p>
+          <ol class="prize-list">
+            <li><strong>ENS</strong><span>Agent identity and discovery records</span></li>
+            <li><strong>Dynamic</strong><span>Server wallet and spending policy</span></li>
+            <li><strong>Arc</strong><span>USDC agent payments and receipts</span></li>
+          </ol>
+        </aside>
+      </section>
+
+      <section class="workspace-grid">
+        <form class="panel intake-panel" id="moveForm">
+          <div class="section-heading">
+            <p class="eyebrow">Move intake</p>
+            <h2>Tell the agent what to optimize.</h2>
+          </div>
+          <label>Current city<input id="currentCity" name="currentCity" value="Washington, DC" required /></label>
+          <label>Destination city<input id="destinationCity" name="destinationCity" value="New York, NY" required /></label>
+          <label>Office or school location<input id="officeLocation" name="officeLocation" value="Union Square" required /></label>
+          <div class="two-column">
+            <label>Move date<input id="moveDate" name="moveDate" type="date" value="2026-08-20" required /></label>
+            <label>Monthly housing budget<input id="budget" name="budget" type="number" min="1" value="3400" required /></label>
+          </div>
+          <div class="two-column">
+            <label>Agent spend cap in USDC<input id="spendCap" name="spendCap" type="number" min="1" value="35" required /></label>
+            <label>Preferred commute minutes<input id="commute" name="commute" type="number" min="1" value="30" required /></label>
+          </div>
+          <label>Items to decide on<textarea id="items" name="items">Couch, desk, bed frame, TV, dining table</textarea></label>
+          <button class="primary-action" type="submit">Create move plan</button>
+        </form>
+
+        <section class="panel" id="agent">
+          <div class="section-heading inline-heading">
+            <div><p class="eyebrow">Agent identity</p><h2>ENS-named relocation agent</h2></div>
+            <span id="agentStatus" class="status-chip pending">Not created</span>
+          </div>
+          <div class="identity-card">
+            <span class="avatar">AI</span>
+            <div><p id="agentName" class="identity-name">move-agent.flyta.eth</p><p id="agentSubtitle">Waiting for relocation intake.</p></div>
+          </div>
+          <div class="record-grid" id="ensRecords"></div>
+          <button id="createAgent" class="secondary-action">Create ENS agent profile</button>
+        </section>
+      </section>
+
+      <section class="panel split-panel" id="tasks">
+        <div>
+          <div class="section-heading"><p class="eyebrow">Autonomous work queue</p><h2>Dynamic wallet policy plus Arc payments.</h2></div>
+          <p class="muted">This demo simulates the judge-visible flow. Replace the mock adapters with real SDK calls listed in the README during the hackathon.</p>
+        </div>
+        <div class="wallet-card">
+          <p class="card-label">Dynamic wallet</p>
+          <strong id="walletAddress">Not authorized</strong>
+          <span id="walletPolicy">Spend cap pending</span>
+          <button id="authorizeWallet" class="primary-action">Authorize wallet</button>
+        </div>
+      </section>
+
+      <section class="task-grid" id="taskGrid" aria-live="polite"></section>
+
+
+      <section class="panel activity-panel" id="activity">
+        <div class="section-heading inline-heading">
+          <div><p class="eyebrow">Live backend stream</p><h2>Agent activity</h2></div>
+          <span id="streamStatus" class="status-chip pending">Connecting</span>
+        </div>
+        <div class="activity-list" id="activityLog" aria-live="polite"></div>
+      </section>
+      <section class="panel" id="receipts">
+        <div class="section-heading inline-heading">
+          <div><p class="eyebrow">Proof of useful Web3</p><h2>Payment and decision receipts</h2></div>
+          <button id="runTasks" class="secondary-action">Run paid tasks</button>
+        </div>
+        <div class="receipt-table-wrap">
+          <table>
+            <thead><tr><th>Task</th><th>Rail</th><th>Amount</th><th>Status</th><th>Receipt</th></tr></thead>
+            <tbody id="receiptRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel judge-panel" id="judge">
+        <div class="section-heading"><p class="eyebrow">Judge packet</p><h2>Why this can win the selected tracks.</h2></div>
+        <div class="judge-grid">
+          <article><h3>ENS</h3><p>Agent name, records, wallet, endpoint, capabilities, and service discovery are core to the product flow.</p></article>
+          <article><h3>Dynamic</h3><p>The relocation agent receives a wallet and spending policy, then signs user-authorized actions.</p></article>
+          <article><h3>Arc</h3><p>The agent pays for useful relocation tools with stablecoin receipts instead of pretending crypto is a login badge.</p></article>
+        </div>
+        <div class="export-box"><pre id="judgePacket"></pre><button id="copyPacket" class="primary-action">Copy judge packet</button></div>
+      </section>
+    </main>
+    <script src="src/app.js" type="module"></script>
+  </body>
+</html>
+
