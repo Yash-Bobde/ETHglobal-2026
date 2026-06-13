@@ -1,48 +1,36 @@
 ﻿const ui = { snapshot: null };
 
 const els = {
-  moveForm: document.querySelector("#moveForm"),
+  form: document.querySelector("#passport-form"),
+  ensName: document.querySelector("#ensName"),
   currentCity: document.querySelector("#currentCity"),
   destinationCity: document.querySelector("#destinationCity"),
-  officeLocation: document.querySelector("#officeLocation"),
   moveDate: document.querySelector("#moveDate"),
-  budget: document.querySelector("#budget"),
-  spendCap: document.querySelector("#spendCap"),
-  commute: document.querySelector("#commute"),
-  items: document.querySelector("#items"),
-  createAgent: document.querySelector("#createAgent"),
-  authorizeWallet: document.querySelector("#authorizeWallet"),
-  runTasks: document.querySelector("#runTasks"),
-  runFullDemo: document.querySelector("#runFullDemo"),
-  resetDemo: document.querySelector("#resetDemo"),
-  copyPacket: document.querySelector("#copyPacket"),
-  agentStatus: document.querySelector("#agentStatus"),
-  agentName: document.querySelector("#agentName"),
-  agentSubtitle: document.querySelector("#agentSubtitle"),
+  priority: document.querySelector("#priority"),
+  notes: document.querySelector("#notes"),
+  ensStatus: document.querySelector("#ensStatus"),
+  resolvedName: document.querySelector("#resolvedName"),
+  resolvedMessage: document.querySelector("#resolvedMessage"),
   ensRecords: document.querySelector("#ensRecords"),
-  walletAddress: document.querySelector("#walletAddress"),
-  walletPolicy: document.querySelector("#walletPolicy"),
-  taskGrid: document.querySelector("#taskGrid"),
-  receiptRows: document.querySelector("#receiptRows"),
-  judgePacket: document.querySelector("#judgePacket"),
-  activityLog: document.querySelector("#activityLog"),
   streamStatus: document.querySelector("#streamStatus"),
+  activityLog: document.querySelector("#activityLog"),
+  passportCards: document.querySelector("#passportCards"),
+  passportJson: document.querySelector("#passportJson"),
+  copyPassport: document.querySelector("#copyPassport"),
 };
 
 function readFormPayload() {
   return {
-    current: els.currentCity.value.trim(),
-    destination: els.destinationCity.value.trim(),
-    office: els.officeLocation.value.trim(),
+    ensName: els.ensName.value.trim(),
+    currentCity: els.currentCity.value.trim(),
+    destinationCity: els.destinationCity.value.trim(),
     moveDate: els.moveDate.value,
-    budget: Number(els.budget.value),
-    spendCap: Number(els.spendCap.value),
-    commute: Number(els.commute.value),
-    items: els.items.value.split(/[\n,]/).map((item) => item.trim()).filter(Boolean),
+    priority: els.priority.value,
+    notes: els.notes.value.trim(),
   };
 }
 
-async function api(path, body = {}) {
+async function postJson(path, body = {}) {
   const response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -50,115 +38,107 @@ async function api(path, body = {}) {
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.error || "Backend request failed");
-  handleSnapshot(data);
+  if (data.passport || data.ens || data.activity) handleSnapshot(data);
   return data;
 }
 
 async function getState() {
   const response = await fetch("/api/state");
-  const data = await response.json();
-  handleSnapshot(data);
+  handleSnapshot(await response.json());
 }
 
 function connectEventStream() {
   const events = new EventSource("/api/events");
-
-  events.onopen = () => {
-    setStreamStatus("Live", "ready");
-  };
-
+  events.onopen = () => setStreamStatus("Live", "ready");
   events.addEventListener("state", (event) => {
     const payload = JSON.parse(event.data);
     handleSnapshot(payload.state || payload);
   });
-
   events.addEventListener("activity", (event) => {
     const payload = JSON.parse(event.data);
-    handleSnapshot(payload.state);
+    handleSnapshot(payload.state || payload);
   });
-
-  events.onerror = () => {
-    setStreamStatus("Reconnecting", "pending");
-  };
+  events.onerror = () => setStreamStatus("Reconnecting", "pending");
 }
 
 function handleSnapshot(snapshot) {
   if (!snapshot) return;
   ui.snapshot = snapshot;
-  renderAgent(snapshot);
-  renderTasks(snapshot);
-  renderReceipts(snapshot);
+  renderEns(snapshot.ens, snapshot.isResolving);
+  renderPassport(snapshot.passport);
   renderActivity(snapshot.activity || []);
-  renderJudgePacket(snapshot.judgePacket);
-  setBusy(Boolean(snapshot.isRunning));
 }
 
-function renderAgent(snapshot) {
-  const plan = snapshot.plan;
-  if (!plan) {
-    els.agentName.textContent = "move-agent.flyta.eth";
-    els.agentSubtitle.textContent = "Waiting for relocation intake.";
-    els.agentStatus.textContent = "Not created";
-    els.agentStatus.className = "status-chip pending";
-    els.walletAddress.textContent = "Not authorized";
-    els.walletPolicy.textContent = "Spend cap pending";
+function renderEns(ens, isResolving) {
+  if (isResolving) {
+    els.ensStatus.textContent = "Resolving";
+    els.ensStatus.className = "status-chip pending";
+    return;
+  }
+
+  if (!ens) {
+    els.ensStatus.textContent = "Waiting";
+    els.ensStatus.className = "status-chip pending";
+    els.resolvedName.textContent = "No name resolved yet";
+    els.resolvedMessage.textContent = "Enter a Sepolia ENS name to begin.";
     els.ensRecords.innerHTML = "";
     return;
   }
 
-  els.agentName.textContent = plan.agentEns;
-  els.agentSubtitle.textContent = snapshot.agentCreated
-    ? `Public service records describe what this agent can do for ${plan.destination}.`
-    : `${plan.route}. Optimizing for ${plan.commute} minute commute and ${plan.budget.toLocaleString()} USD rent.`;
-
-  if (snapshot.ensVerification?.configured && snapshot.ensVerification?.exists) {
-    els.agentStatus.textContent = "Sepolia verified";
-    els.agentStatus.className = "status-chip ready";
-  } else if (snapshot.ensVerification?.configured && !snapshot.ensVerification?.exists) {
-    els.agentStatus.textContent = "Register on Sepolia";
-    els.agentStatus.className = "status-chip pending";
-  } else if (snapshot.walletAuthorized) {
-    els.agentStatus.textContent = "Agent active";
-    els.agentStatus.className = "status-chip ready";
-  } else if (snapshot.agentCreated) {
-    els.agentStatus.textContent = "ENS RPC needed";
-    els.agentStatus.className = "status-chip pending";
+  if (!ens.configured) {
+    els.ensStatus.textContent = "RPC needed";
+    els.ensStatus.className = "status-chip pending";
+  } else if (ens.exists) {
+    els.ensStatus.textContent = "Verified";
+    els.ensStatus.className = "status-chip ready";
   } else {
-    els.agentStatus.textContent = "Intake ready";
-    els.agentStatus.className = "status-chip pending";
+    els.ensStatus.textContent = "Not registered";
+    els.ensStatus.className = "status-chip failed";
   }
 
-  els.walletAddress.textContent = snapshot.walletAddress || "Not authorized";
-  els.walletPolicy.textContent = snapshot.walletAuthorized
-    ? `Dynamic policy: max ${plan.spendCap} USDC across approved relocation tasks`
-    : `Spend cap pending: ${plan.spendCap} USDC`;
+  els.resolvedName.textContent = ens.name || "Unknown ENS name";
+  els.resolvedMessage.textContent = ens.message || "ENS lookup completed.";
+  els.ensRecords.innerHTML = createEnsRecordList(ens);
+}
 
-  els.ensRecords.innerHTML = (snapshot.ensRecords || [])
-    .map((record) => `<div class="record"><span>${escapeHtml(record.label)}</span><strong>${escapeHtml(record.value)}</strong></div>`)
+function createEnsRecordList(ens) {
+  const records = [
+    ["network", ens.network || "sepolia"],
+    ["owner", ens.owner || "not found"],
+    ["resolver", ens.resolver || "not found"],
+    ["addr", ens.address || "not set"],
+  ];
+
+  if (Array.isArray(ens.textRecords)) {
+    for (const record of ens.textRecords) {
+      records.push([record.key, record.value || "not set"]);
+    }
+  }
+
+  return records
+    .map(([label, value]) => `<div class="record"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`)
     .join("");
 }
 
-function renderTasks(snapshot) {
-  const receipts = snapshot.receipts || [];
-  els.taskGrid.innerHTML = (snapshot.tasks || [])
-    .map((task) => {
-      const receipt = receipts.find((item) => item.taskId === task.id);
-      const status = receipt ? "Paid" : snapshot.walletAuthorized ? "Ready" : "Locked";
-      return `<article class="task-card"><div class="task-meta"><span>${escapeHtml(task.rail)}</span><span>${task.amount.toFixed(2)} USDC</span><span>${status}</span></div><h3>${escapeHtml(task.title)}</h3><p class="muted">${escapeHtml(task.description)}</p><strong>${escapeHtml(receipt ? receipt.outcome : "Waiting for authorization")}</strong></article>`;
-    })
-    .join("");
-}
-
-function renderReceipts(snapshot) {
-  const receipts = snapshot.receipts || [];
-  if (receipts.length === 0) {
-    els.receiptRows.innerHTML = `<tr><td colspan="5">No receipts yet. Authorize the wallet, then run paid tasks.</td></tr>`;
+function renderPassport(passport) {
+  if (!passport) {
+    els.passportCards.innerHTML = `<article class="empty-card">Create a passport to see Flyta's narrowed relocation concept.</article>`;
+    els.passportJson.textContent = "Create a passport to generate JSON.";
     return;
   }
 
-  els.receiptRows.innerHTML = receipts
-    .map((receipt) => `<tr><td>${escapeHtml(receipt.title)}</td><td>${escapeHtml(receipt.rail)}</td><td>${receipt.amount.toFixed(2)} USDC</td><td><span class="status-chip ready">${escapeHtml(receipt.status)}</span></td><td><a class="receipt-link" href="#judge" title="Mock explorer hash">${escapeHtml(receipt.hash.slice(0, 10))}...</a></td></tr>`)
-    .join("");
+  const cards = [
+    ["Identity", passport.identityStatus],
+    ["Route", passport.route],
+    ["Priority", passport.priority],
+    ["Move date", passport.moveDate || "not set"],
+  ];
+
+  els.passportCards.innerHTML = cards
+    .map(([label, value]) => `<article class="passport-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></article>`)
+    .join("") + `<article class="passport-card wide"><span>Checklist</span><ul>${passport.checklist.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></article>`;
+
+  els.passportJson.textContent = JSON.stringify(passport, null, 2);
 }
 
 function renderActivity(activity) {
@@ -175,63 +155,28 @@ function renderActivity(activity) {
     .join("");
 }
 
-function renderJudgePacket(packet) {
-  els.judgePacket.textContent = packet ? JSON.stringify(packet, null, 2) : "Create a move plan to generate the judge packet.";
-}
-
 function setStreamStatus(label, className) {
   els.streamStatus.textContent = label;
   els.streamStatus.className = `status-chip ${className}`;
 }
 
-function setBusy(isBusy) {
-  els.runTasks.disabled = isBusy;
-  els.runFullDemo.disabled = isBusy;
-  els.runTasks.textContent = isBusy ? "Running..." : "Run paid tasks";
-}
-
-async function createPlan(event) {
-  event?.preventDefault();
-  await safeRun(() => api("/api/plan", readFormPayload()));
-}
-
-async function createAgent() {
-  await safeRun(() => api("/api/agent"));
-}
-
-async function authorizeWallet() {
-  await safeRun(() => api("/api/wallet/authorize"));
-}
-
-async function runPaidTasks() {
-  await safeRun(() => api("/api/tasks/run"));
-}
-
-async function runFullDemo() {
+async function createPassport(event) {
+  event.preventDefault();
   await safeRun(async () => {
-    await api("/api/plan", readFormPayload());
-    await api("/api/agent");
-    await api("/api/wallet/authorize");
-    await api("/api/tasks/run");
-    document.querySelector("#receipts").scrollIntoView({ behavior: "smooth", block: "start" });
+    const snapshot = await postJson("/api/passport", readFormPayload());
+    handleSnapshot(snapshot);
+    document.querySelector("#ens-result").scrollIntoView({ behavior: "smooth", block: "start" });
   });
 }
 
-async function resetDemo() {
-  await safeRun(async () => {
-    await api("/api/reset");
-    await api("/api/plan", readFormPayload());
-  });
-}
-
-async function copyPacket() {
-  const text = els.judgePacket.textContent;
+async function copyPassport() {
+  const text = els.passportJson.textContent;
   try {
     await navigator.clipboard.writeText(text);
-    els.copyPacket.textContent = "Copied";
-    setTimeout(() => { els.copyPacket.textContent = "Copy judge packet"; }, 1200);
+    els.copyPassport.textContent = "Copied";
+    setTimeout(() => { els.copyPassport.textContent = "Copy JSON"; }, 1200);
   } catch {
-    els.copyPacket.textContent = "Select packet to copy";
+    els.copyPassport.textContent = "Select JSON to copy";
   }
 }
 
@@ -253,16 +198,7 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-els.moveForm.addEventListener("submit", createPlan);
-els.createAgent.addEventListener("click", createAgent);
-els.authorizeWallet.addEventListener("click", authorizeWallet);
-els.runTasks.addEventListener("click", runPaidTasks);
-els.runFullDemo.addEventListener("click", runFullDemo);
-els.resetDemo.addEventListener("click", resetDemo);
-els.copyPacket.addEventListener("click", copyPacket);
-
+els.form.addEventListener("submit", createPassport);
+els.copyPassport.addEventListener("click", copyPassport);
 connectEventStream();
-getState().then(() => {
-  if (!ui.snapshot?.plan) createPlan();
-});
-
+getState();

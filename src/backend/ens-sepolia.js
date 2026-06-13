@@ -54,8 +54,23 @@ async function resolveEnsAgent(name) {
   }
 
   const { namehash, normalize } = await import("viem/ens");
-  const normalized = normalize(name);
-  const node = namehash(normalized);
+  let normalized;
+  let node;
+  try {
+    normalized = normalize(name);
+    node = namehash(normalized);
+  } catch (error) {
+    return {
+      configured: true,
+      network: "sepolia",
+      chainId: ENS_SEPOLIA.chainId,
+      name,
+      exists: false,
+      error: error.shortMessage || error.message || "Invalid ENS name.",
+      contracts: ENS_SEPOLIA,
+      message: "Invalid ENS name. Use a valid name like yourname.eth.",
+    };
+  }
 
   try {
     const [owner, resolver, address, textRecords] = await Promise.all([
@@ -119,3 +134,4 @@ async function resolveEnsAgent(name) {
 }
 
 module.exports = { ENS_SEPOLIA, agentTextKeys, resolveEnsAgent };
+

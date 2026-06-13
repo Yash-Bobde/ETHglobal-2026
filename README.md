@@ -1,175 +1,119 @@
-﻿# Flyta Move Agent
+﻿# Flyta ENS Passport
 
-A fresh hackathon-oriented rebuild inspired by Flyta AI, created separately at:
+A narrowed ETHGlobal project for the **Integrate ENS** pool prize.
 
-`C:\Users\DELL\Music\Flyta-Hackathon`
+Flyta ENS Passport uses a Sepolia ENS name as the public identity for a relocation profile. A user enters an ENS name plus simple move details, the backend resolves ENS records on Sepolia, and the app creates a lightweight relocation passport that can be shown in a demo video.
 
-The original Flyta AI project is not touched.
+## Scope
 
-## Product
+This project intentionally targets only:
 
-Flyta Move Agent helps a job mover plan a relocation through a named AI agent that can:
+- **Integrate ENS** pool prize
 
-- Create an ENS-style public identity for the relocation agent.
-- Use a Dynamic-style wallet and user-defined spend cap.
-- Pay for useful relocation tools through Arc/Circle-style USDC receipts.
-- Stream backend activity to the browser in real time.
-- Produce a judge packet showing why the Web3 pieces are necessary.
+It avoids extra sponsor tracks and keeps the demo simple, functional, and clearly eligible for the ENS pool.
 
-This is intentionally scoped to 3 prize targets:
+## Why This Qualifies
 
-1. ENS: Best ENS Integration for AI Agents
-2. Dynamic: Best Agentic Build
-3. Arc: Best Agentic Economy with Circle Agent Stack
+The app includes ENS-specific code and a functional demo path:
 
-Sui and Hedera are intentionally excluded.
+- Backend resolves user-provided ENS names on Sepolia.
+- Backend reads registry owner, resolver, address, and text records.
+- UI works with any ENS name typed into the form.
+- Flyta concept is preserved through a relocation passport generated from ENS identity plus move context.
+- Code is open source ready and does not require hard-coded demo values.
 
-## Run
+## Run Locally
 
 ```powershell
 cd C:\Users\DELL\Music\Flyta-Hackathon
+npm install
 npm run start
 ```
 
-Then open:
+Open:
 
-`http://localhost:3007`
+```text
+http://localhost:3007
+```
 
-## Backend Routes
+## Configure Sepolia ENS
 
-The app now uses the Node backend, not client-only state.
+Create:
 
-- `GET /api/state` returns the current plan, agent, wallet, receipts, activity, and judge packet.
-- `GET /api/events` opens a Server-Sent Events stream for live backend updates.
-- `POST /api/plan` creates a relocation plan from the intake form.
-- `POST /api/agent` prepares the ENS-style agent profile.
-- `POST /api/wallet/authorize` creates the Dynamic-style wallet policy state.
-- `POST /api/tasks/run` runs the paid task queue and streams receipt updates.
-- `POST /api/reset` clears backend state.
+```text
+C:\Users\DELL\Music\Flyta-Hackathon\.env.local
+```
 
-Backend logic lives in:
-
-`src/backend/agent-engine.js`
-
-
-## Step 1: ENS Sepolia Setup
-
-We are doing ENS as a read-only verification first. That means the backend checks Sepolia for your agent name, resolver, wallet address, and text records. No private key is needed yet.
-
-### What you need
-
-1. A wallet with Sepolia ETH.
-2. A Sepolia RPC URL from Alchemy, Infura, QuickNode, or another Ethereum RPC provider.
-3. A Sepolia ENS name registered at `https://sepolia.app.ens.domains`.
-
-### Add your RPC URL
-
-Create this file:
-
-`C:\Users\DELL\Music\Flyta-Hackathon\.env.local`
-
-Add:
+Add your Sepolia RPC URL:
 
 ```powershell
 SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
-ENS_AGENT_BASE_DOMAIN=your-sepolia-name.eth
 ```
 
-Restart the app after saving `.env.local`:
+Do not commit `.env.local`.
 
-```powershell
-cd C:\Users\DELL\Music\Flyta-Hackathon
-npm run start
-```
+## Get Sepolia ETH
 
-### Register the agent name
+Use either faucet:
 
-1. Open `https://sepolia.app.ens.domains`.
-2. Connect the same wallet you want to use for the demo.
-3. First register a parent Sepolia ENS name you control, for example `your-sepolia-name.eth`. Put that parent in `ENS_AGENT_BASE_DOMAIN`. Then search for the generated agent subname from the app, for example:
+- https://www.alchemy.com/faucets/ethereum-sepolia
+- https://faucets.chain.link/sepolia
 
-`new-york-ny-move-agent.your-sepolia-name.eth`
+## Register Or Use A Sepolia ENS Name
 
-4. If it is available, register it on Sepolia.
-5. Set its address record to the demo wallet address, or later the Dynamic wallet address.
-6. Add these text records:
+Use the Sepolia ENS app:
 
 ```text
-url=https://flyta.local/agent
-flyta.capabilities=neighborhood_rank,pay_quote,storage_hold,item_decision
-flyta.route=Washington, DC to New York, NY
-flyta.policy=35 USDC user cap
+https://sepolia.app.ens.domains
 ```
 
-### Verify from the backend
+For the cleanest demo, use a name you control and set at least one address record. Optional text records make the demo nicer:
 
-After restarting with `SEPOLIA_RPC_URL`, call:
+```text
+url=https://your-demo-url.example
+flyta.route=Washington, DC to New York, NY
+flyta.policy=Relocation identity only
+flyta.capabilities=ens_lookup,relocation_passport
+```
+
+## API Routes
+
+- `GET /api/state` returns current backend state.
+- `GET /api/events` streams live backend events with Server-Sent Events.
+- `GET /api/ens/config` checks whether `SEPOLIA_RPC_URL` is configured.
+- `POST /api/ens/resolve` resolves an ENS name directly.
+- `POST /api/passport` resolves ENS and creates the Flyta relocation passport.
+- `POST /api/reset` clears local backend state.
+
+Example:
 
 ```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:3007/api/ens/resolve -Headers @{ 'Content-Type' = 'application/json' } -Body '{"name":"new-york-ny-move-agent.your-sepolia-name.eth"}'
+Invoke-RestMethod -Method Post -Uri http://localhost:3007/api/passport -Headers @{ 'Content-Type' = 'application/json' } -Body '{"ensName":"yourname.eth","currentCity":"Washington, DC","destinationCity":"New York, NY","moveDate":"2026-08-20","priority":"commute","notes":"Starting a new job."}'
 ```
 
-The app's “Create ENS agent profile” button also runs this lookup and updates the live backend stream.
+## Demo Video Script
 
-## Current Demo Flow
+1. Open the app.
+2. Show `.env.local` exists but do not reveal the full RPC key.
+3. Enter a Sepolia ENS name you control.
+4. Enter current city, destination city, move date, and priority.
+5. Click **Resolve ENS + create passport**.
+6. Show the ENS result: network, owner, resolver, address, and text records.
+7. Show the Flyta relocation passport JSON.
+8. Say: “This is a focused ENS integration. Flyta uses ENS as the public identity layer for relocation profiles.”
 
-1. Fill or edit the relocation intake.
-2. Create the ENS agent profile.
-3. Authorize the Dynamic-style wallet and spending policy.
-4. Run paid relocation tasks.
-5. Watch the live backend stream update.
-6. Review Arc/Dynamic receipts.
-7. Copy the judge packet.
+## Submission Checklist
 
-## Real Integration Roadmap
-
-### Step 1: ENS
-
-Replace `createEnsRecords()` in `src/backend/agent-engine.js` with real ENS writes or resolver reads.
-
-Suggested records:
-
-- `addr`: agent wallet
-- `url`: public agent endpoint
-- `flyta.capabilities`: JSON list of supported actions
-- `flyta.route`: current move route
-- `flyta.policy`: spend cap and permissions
-
-### Step 2: Dynamic
-
-Replace `mockWalletAddress()` and `authorizeWallet()` with Dynamic server wallet creation and policy assignment.
-
-Required demo proof:
-
-- Show wallet address.
-- Show user-approved spend cap.
-- Sign or submit at least one testnet transaction from the agent wallet.
-
-### Step 3: Arc / Circle Agent Stack
-
-Replace the receipt creation inside `runTasks()` with real USDC testnet payments or x402-style paid tool calls.
-
-Best tasks for the hackathon:
-
-- Buy verified mover quote data.
-- Reserve a storage quote window.
-- Purchase premium commute data.
-
-Required demo proof:
-
-- Amount in USDC.
-- Recipient/tool name.
-- Transaction hash or payment receipt.
-- Agent decision generated from the paid result.
-
-## Why This Should Score
-
-The Web3 layer is not decorative. Flyta needs identity because movers must trust an agent that contacts vendors. It needs a wallet because the agent has to pay for data, quotes, and holds. It needs receipts because relocation decisions can be expensive and users need auditability.
+- Push this repository to GitHub.
+- Keep `.env.local` out of Git.
+- Include a README.
+- Include a video recording.
+- Include a live demo link if possible.
+- In the ETHGlobal showcase, mention that the app resolves ENS on Sepolia through backend code and does not rely on RainbowKit-only ENS display.
 
 ## Smoke Check
 
 ```powershell
 npm run check
 ```
-
 

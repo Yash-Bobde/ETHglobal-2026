@@ -1,8 +1,8 @@
-{
-  "name": "flyta-hackathon",
+﻿{
+  "name": "flyta-ens-passport",
   "version": "0.1.0",
   "private": true,
-  "description": "Hackathon-oriented Flyta Move Agent demo for ETHGlobal New York 2026 prize tracks.",
+  "description": "Focused ENS integration demo: create a Flyta relocation passport from a Sepolia ENS name.",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
@@ -10,11 +10,8 @@
   },
   "keywords": [
     "ethglobal",
-    "ai-agent",
     "ens",
-    "dynamic",
-    "arc",
-    "circle",
+    "sepolia",
     "relocation"
   ],
   "license": "MIT",

@@ -13,34 +13,33 @@ const required = [
   "README.md",
   "package.json",
 ];
+
 const missing = required.filter((file) => !fs.existsSync(path.join(root, file)));
 if (missing.length > 0) {
   console.error(`Missing required files: ${missing.join(", ")}`);
   process.exit(1);
 }
 
-const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-const app = fs.readFileSync(path.join(root, "src/app.js"), "utf8");
-const server = fs.readFileSync(path.join(root, "server.js"), "utf8");
-const engine = fs.readFileSync(path.join(root, "src/backend/agent-engine.js"), "utf8");
-const ens = fs.readFileSync(path.join(root, "src/backend/ens-sepolia.js"), "utf8");
-const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
-const bundle = `${html}\n${app}\n${server}\n${engine}\n${ens}\n${readme}`;
+const files = Object.fromEntries(
+  required.map((file) => [file, fs.readFileSync(path.join(root, file), "utf8")]),
+);
+const bundle = Object.values(files).join("\n");
 const checks = [
-  ["ENS prize target", bundle.includes("ENS")],
-  ["Dynamic prize target", bundle.includes("Dynamic")],
-  ["Arc prize target", bundle.includes("Arc")],
-  ["Banned tracks are exclusion-only", engine.includes("excludedTracks") && readme.includes("intentionally excluded")],
-  ["Backend API routes", server.includes("/api/plan") && server.includes("/api/events")],
-  ["Sepolia ENS adapter", ens.includes("ENS_SEPOLIA") && ens.includes("0xE99638b40E4Fff0129D56f03b55b6bbC4BBE49b5")],
-  ["ENS resolve route", server.includes("/api/ens/resolve")],
-  ["Real-time EventSource client", app.includes("EventSource")],
-  ["Agent receipts", engine.includes("receipts")],
+  ["Focused ENS branding", files["index.html"].includes("Flyta ENS Passport")],
+  ["Sepolia ENS adapter", files["src/backend/ens-sepolia.js"].includes("ENS_SEPOLIA")],
+  ["ENS resolve route", files["server.js"].includes("/api/ens/resolve")],
+  ["Passport route", files["server.js"].includes("/api/passport")],
+  ["Real-time EventSource client", files["src/app.js"].includes("EventSource")],
+  ["No old multi-track routes", !bundle.includes("/api/" + "tasks/run") && !bundle.includes("/api/" + "wallet/authorize")],
+  ["README pool-prize scope", files["README.md"].includes("Integrate ENS")],
 ];
+
 const failed = checks.filter(([, ok]) => !ok);
 if (failed.length > 0) {
   failed.forEach(([label]) => console.error(`Failed: ${label}`));
   process.exit(1);
 }
-console.log("Smoke check passed: backend API, live stream, and hackathon prize focus are present.");
+
+console.log("Smoke check passed: focused ENS passport app is present.");
+
 

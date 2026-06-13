@@ -2,14 +2,13 @@
 const fs = require("fs");
 const path = require("path");
 const { loadLocalEnv } = require("./src/backend/env");
-const { createAgentEngine } = require("./src/backend/agent-engine");
-const { resolveEnsAgent } = require("./src/backend/ens-sepolia");
+const { createPassportEngine } = require("./src/backend/agent-engine");
 
 const root = __dirname;
 loadLocalEnv(root);
+
 const port = Number(process.env.PORT || 3007);
 const sseClients = new Set();
-
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -17,15 +16,13 @@ const mimeTypes = {
   ".json": "application/json; charset=utf-8",
 };
 
-const engine = createAgentEngine((event, payload) => {
+const engine = createPassportEngine((event, payload) => {
   broadcast(event, payload);
 });
 
 function broadcast(event, payload) {
   const message = `event: ${event}\ndata: ${JSON.stringify(payload)}\n\n`;
-  for (const client of sseClients) {
-    client.write(message);
-  }
+  for (const client of sseClients) client.write(message);
 }
 
 function safeJoin(base, requestPath) {
@@ -58,10 +55,7 @@ function readJson(request) {
       }
     });
     request.on("end", () => {
-      if (!body.trim()) {
-        resolve({});
-        return;
-      }
+      if (!body.trim()) return resolve({});
       try {
         resolve(JSON.parse(body));
       } catch {
@@ -81,9 +75,7 @@ function handleEvents(request, response) {
   });
   response.write(`event: state\ndata: ${JSON.stringify({ state: engine.snapshot() })}\n\n`);
   sseClients.add(response);
-  request.on("close", () => {
-    sseClients.delete(response);
-  });
+  request.on("close", () => sseClients.delete(response));
 }
 
 async function handleApi(request, response, pathname) {
@@ -111,33 +103,14 @@ async function handleApi(request, response, pathname) {
       return;
     }
 
-    if (pathname === "/api/plan") {
-      sendJson(response, engine.createPlan(await readJson(request)));
-      return;
-    }
-
-    if (pathname === "/api/agent") {
-      sendJson(response, await engine.createAgent());
+    if (pathname === "/api/passport") {
+      sendJson(response, await engine.createPassport(await readJson(request)));
       return;
     }
 
     if (pathname === "/api/ens/resolve") {
       const body = await readJson(request);
-      if (!body.name) {
-        sendJson(response, { error: "name is required" }, 400);
-        return;
-      }
-      sendJson(response, await resolveEnsAgent(String(body.name)));
-      return;
-    }
-
-    if (pathname === "/api/wallet/authorize") {
-      sendJson(response, engine.authorizeWallet());
-      return;
-    }
-
-    if (pathname === "/api/tasks/run") {
-      sendJson(response, await engine.runTasks());
+      sendJson(response, await engine.resolveName(body.name || body.ensName));
       return;
     }
 
@@ -178,8 +151,6 @@ const server = http.createServer((request, response) => {
 });
 
 server.listen(port, () => {
-  console.log(`Flyta Hackathon running at http://localhost:${port}`);
-  console.log(`Backend API ready at http://localhost:${port}/api/state`);
+  console.log(`Flyta ENS Passport running at http://localhost:${port}`);
+  console.log(`ENS API ready at http://localhost:${port}/api/ens/config`);
 });
-
-
