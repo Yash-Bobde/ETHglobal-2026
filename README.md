@@ -6,6 +6,10 @@ RemAI uses a Sepolia ENS name as the public identity layer for a relocation prof
 
 The backend supports both the stable Sepolia ENS registry and the ENS v2 dev registry used by `app.ens.dev`. That matters because `app.ens.dev` uses a newer Sepolia deployment for ENS v2 dev names.
 
+## Demo Video
+
+I have a video for it: [RemAI demo video](https://drive.google.com/file/d/1qtz3tlL95v9Jge1FEdcsdmg0cNGpkyMx/view?usp=sharing)
+
 ## Scope
 
 RemAI turns an ENS name into a practical, shareable identity card for relocation and community onboarding.
