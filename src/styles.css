@@ -24,6 +24,7 @@ button { cursor: pointer; }
 a { color: inherit; }
 .topbar { align-items: center; background: rgba(255,255,255,0.92); border-bottom: 1px solid var(--line); display: flex; gap: 24px; justify-content: space-between; padding: 14px clamp(18px, 4vw, 48px); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(16px); }
 .brand { align-items: center; color: var(--ink); display: inline-flex; gap: 12px; text-decoration: none; }
+.brand-logo { border-radius: 8px; display: block; height: 42px; width: 42px; }
 .brand-mark, .avatar { align-items: center; background: var(--ink); border-radius: 8px; color: var(--white); display: inline-flex; font-weight: 900; height: 42px; justify-content: center; width: 42px; }
 .brand small, .muted, .card-label { color: var(--muted); display: block; }
 .topbar nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
@@ -47,6 +48,7 @@ main { display: grid; gap: 22px; margin: 0 auto; max-width: 1180px; padding: 28p
 .primary-action:hover { background: var(--blue-dark); }
 .secondary-action { background: var(--cloud); color: var(--ink); }
 .secondary-action:hover { background: #e8eef6; }
+.primary-action:disabled, .secondary-action:disabled { cursor: not-allowed; opacity: 0.62; }
 .strategy-card { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); border-radius: 8px; padding: 20px; }
 .card-label, .eyebrow { font-size: 12px; font-weight: 900; letter-spacing: 0.08em; margin: 0; text-transform: uppercase; }
 .eyebrow { color: var(--mint); margin-bottom: 8px; }

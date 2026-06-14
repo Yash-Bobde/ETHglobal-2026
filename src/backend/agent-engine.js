@@ -1,4 +1,4 @@
-﻿const { resolveEnsAgent } = require("./ens-sepolia");
+const { resolveEnsAgent } = require("./ens-sepolia");
 
 function createPassportEngine(emit = () => {}) {
   let state = initialState();
@@ -30,7 +30,7 @@ function createPassportEngine(emit = () => {}) {
     state.error = null;
     state.move = move;
     publish("state");
-    log("input", `Creating Flyta passport for ${move.ensName}.`, "running", move);
+    log("input", `Creating RemAI passport for ${move.ensName}.`, "running", move);
 
     const ens = await resolveEnsAgent(move.ensName);
     const passport = buildPassport(move, ens);
@@ -114,7 +114,7 @@ function buildPassport(move, ens) {
     : [];
 
   return {
-    title: "Flyta ENS Relocation Passport",
+    title: "RemAI ENS Relocation Passport",
     identityStatus,
     ensName: move.ensName,
     owner: ens.owner || null,

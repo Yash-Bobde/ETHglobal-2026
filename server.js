@@ -1,4 +1,4 @@
-﻿const http = require("http");
+const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const { loadLocalEnv } = require("./src/backend/env");
@@ -15,6 +15,7 @@ const mimeTypes = {
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".svg": "image/svg+xml; charset=utf-8",
 };
 
 function broadcast(sessionId, event, payload) {
@@ -35,7 +36,7 @@ function getEngine(sessionId) {
 }
 
 function getSessionId(request, url) {
-  const raw = url.searchParams.get("sessionId") || request.headers["x-flyta-session"];
+  const raw = url.searchParams.get("sessionId") || request.headers["x-remai-session"];
   if (typeof raw === "string" && /^[a-zA-Z0-9_-]{8,80}$/.test(raw)) return raw;
   return "default";
 }
@@ -177,6 +178,6 @@ const server = http.createServer((request, response) => {
 });
 
 server.listen(port, () => {
-  console.log(`Flyta ENS Passport running at http://localhost:${port}`);
+  console.log(`RemAI ENS Passport running at http://localhost:${port}`);
   console.log(`ENS API ready at http://localhost:${port}/api/ens/config`);
 });

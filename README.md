@@ -1,10 +1,10 @@
-﻿# Flyta ENS Passport
+# RemAI ENS Passport
 
-A narrowed ETHGlobal project for the **Integrate ENS** pool prize.
+A focused ETHGlobal project for the **Integrate ENS** pool prize.
 
-Flyta ENS Passport uses a Sepolia ENS name as the public identity for a relocation profile. A user enters an ENS name plus simple move details, the backend resolves ENS records on Sepolia, and the app creates a lightweight relocation passport that can be shown in a demo video.
+RemAI uses a Sepolia ENS name as the public identity layer for a relocation profile. A user enters an ENS name plus simple move details, the backend resolves ENS records on Sepolia, and the app creates a lightweight relocation passport that can be shown in a demo video.
 
-The backend supports both the stable Sepolia ENS registry and the ENS v2 dev registry used by `app.ens.dev`. That matters because `app.ens.dev` shows a notice that ENS v2 is in active development and uses a newer Sepolia deployment.
+The backend supports both the stable Sepolia ENS registry and the ENS v2 dev registry used by `app.ens.dev`. That matters because `app.ens.dev` uses a newer Sepolia deployment for ENS v2 dev names.
 
 ## Scope
 
@@ -20,9 +20,9 @@ The app includes ENS-specific code and a functional demo path:
 
 - Backend resolves user-provided ENS names on Sepolia.
 - Backend falls back to the `app.ens.dev` ENS v2 dev registry for names registered there.
-- Backend reads registry owner, resolver, address, and text records.
+- Backend reads registry owner, resolver, address, expiry, and text records.
 - UI works with any ENS name typed into the form.
-- Flyta concept is preserved through a relocation passport generated from ENS identity plus move context.
+- RemAI concept is preserved through a relocation passport generated from ENS identity plus move context.
 - Code is open source ready and does not require hard-coded demo values.
 
 ## Run Locally
@@ -71,15 +71,15 @@ https://sepolia.app.ens.domains
 https://app.ens.dev
 ```
 
-For the cleanest demo, use a name you control. If you registered on `app.ens.dev`, Flyta should show the source as `app-ens-dev-v2-registry`.
+For the cleanest demo, use a name you control. If you registered on `app.ens.dev`, RemAI should show the source as `app-ens-dev-v2-registry`.
 
 Optional text records make the demo nicer when available:
 
 ```text
 url=https://your-demo-url.example
-flyta.route=Washington, DC to New York, NY
-flyta.policy=Relocation identity only
-flyta.capabilities=ens_lookup,relocation_passport
+remai.route=Washington, DC to New York, NY
+remai.policy=Relocation identity only
+remai.capabilities=ens_lookup,relocation_passport
 ```
 
 ## API Routes
@@ -88,7 +88,7 @@ flyta.capabilities=ens_lookup,relocation_passport
 - `GET /api/events` streams live backend events with Server-Sent Events.
 - `GET /api/ens/config` checks whether `SEPOLIA_RPC_URL` is configured.
 - `POST /api/ens/resolve` resolves an ENS name directly.
-- `POST /api/passport` resolves ENS and creates the Flyta relocation passport.
+- `POST /api/passport` resolves ENS and creates the RemAI relocation passport.
 - `POST /api/reset` clears local backend state.
 
 Example:
@@ -104,9 +104,9 @@ Invoke-RestMethod -Method Post -Uri http://localhost:3007/api/passport -Headers 
 3. Enter a Sepolia ENS name you control.
 4. Enter current city, destination city, move date, and priority.
 5. Click **Resolve ENS + create passport**.
-6. Show the ENS result: network, owner, resolver, address, and text records.
-7. Show the Flyta relocation passport JSON.
-8. Say: “This is a focused ENS integration. Flyta uses ENS as the public identity layer for relocation profiles.”
+6. Show the ENS result: network, source, owner, resolver, address, expiry, and records.
+7. Show the RemAI relocation passport JSON.
+8. Say: “This is a focused ENS integration. RemAI uses ENS as the public identity layer for relocation profiles.”
 
 ## Submission Checklist
 
@@ -115,11 +115,10 @@ Invoke-RestMethod -Method Post -Uri http://localhost:3007/api/passport -Headers 
 - Include a README.
 - Include a video recording.
 - Include a live demo link if possible.
-- In the ETHGlobal showcase, mention that the app resolves ENS on Sepolia through backend code and does not rely on RainbowKit-only ENS display.
+- In the ETHGlobal showcase, mention that RemAI resolves ENS on Sepolia through backend code and does not rely on RainbowKit-only ENS display.
 
 ## Smoke Check
 
 ```powershell
 npm run check
 ```
-

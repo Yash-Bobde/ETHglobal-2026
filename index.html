@@ -1,17 +1,18 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Flyta ENS Passport</title>
-    <meta name="description" content="A focused ENS integration demo that creates a lightweight relocation passport from a Sepolia ENS name." />
+    <title>RemAI ENS Passport</title>
+    <meta name="description" content="RemAI creates a lightweight relocation passport from a real Sepolia ENS name." />
+    <link rel="icon" href="assets/remai-logo.svg" />
     <link rel="stylesheet" href="src/styles.css" />
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="#app" aria-label="Flyta ENS Passport home">
-        <span class="brand-mark">F</span>
-        <span><strong>Flyta ENS Passport</strong><small>Relocation identity</small></span>
+      <a class="brand" href="#app" aria-label="RemAI home">
+        <img class="brand-logo" src="assets/remai-logo.svg" alt="" />
+        <span><strong>RemAI</strong><small>ENS relocation identity</small></span>
       </a>
       <nav aria-label="Primary navigation">
         <a href="#passport-form">Create</a>
@@ -25,7 +26,7 @@
         <div class="hero-copy">
           <p class="eyebrow">Focused track: Integrate ENS</p>
           <h1>Turn any Sepolia ENS name into a relocation passport.</h1>
-          <p class="lede">Flyta uses ENS as the public identity layer for a mover. The demo resolves a real Sepolia ENS name, reads its records, and creates a simple move profile that can be shown to landlords, roommates, movers, or city guides.</p>
+          <p class="lede">RemAI uses ENS as the public identity layer for people moving into a new city or community. It resolves a real Sepolia ENS name, reads its records, and creates a shareable relocation passport from user-provided move details.</p>
           <div class="hero-actions">
             <a class="primary-action" href="#passport-form">Build passport</a>
           </div>
@@ -34,8 +35,8 @@
           <p class="card-label">Why this qualifies</p>
           <ol class="prize-list">
             <li><strong>ENS-specific code</strong><span>Backend resolves ENS on Sepolia with viem.</span></li>
-            <li><strong>No fixed user values</strong><span>Demo works with any ENS name and move details.</span></li>
-            <li><strong>Functional demo</strong><span>Live API, open source code, and video-ready flow.</span></li>
+            <li><strong>Functional identity flow</strong><span>ENS owner, resolver, address, expiry, and text records are shown.</span></li>
+            <li><strong>No fixed user values</strong><span>The demo works with any ENS name and move details.</span></li>
           </ol>
         </aside>
       </section>
@@ -62,7 +63,7 @@
               </select>
             </label>
           </div>
-          <label>What should people know about this move?<textarea id="notes" name="notes" placeholder="Starting a new job, looking for transit-friendly neighborhoods, selling bulky furniture before the move."></textarea></label>
+          <label>What should people know about this move?<textarea id="notes" name="notes" placeholder="Starting a new job, looking for transit-friendly neighborhoods, joining a new Web3 community."></textarea></label>
           <button class="primary-action" type="submit">Resolve ENS + create passport</button>
         </form>
 
@@ -89,13 +90,12 @@
 
       <section class="panel" id="passport">
         <div class="section-heading inline-heading">
-          <div><p class="eyebrow">Flyta concept</p><h2>Relocation passport</h2></div>
+          <div><p class="eyebrow">RemAI concept</p><h2>Relocation passport</h2></div>
           <button id="copyPassport" class="secondary-action" type="button">Copy JSON</button>
         </div>
         <div class="passport-grid" id="passportCards"></div>
         <pre id="passportJson">Create a passport to generate JSON.</pre>
       </section>
-
     </main>
     <footer class="site-footer">Made with ❤️ by Yash</footer>
     <script src="src/app.js" type="module"></script>

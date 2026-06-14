@@ -1,4 +1,4 @@
-﻿const sessionId = createSessionId();
+const sessionId = createSessionId();
 const ui = { snapshot: null };
 
 const els = {
@@ -36,7 +36,7 @@ async function postJson(path, body = {}) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "X-Flyta-Session": sessionId,
+      "X-RemAI-Session": sessionId,
     },
     body: JSON.stringify(body),
   });
@@ -48,7 +48,7 @@ async function postJson(path, body = {}) {
 
 async function getState() {
   const response = await fetch(withSession("/api/state"), {
-    headers: { "X-Flyta-Session": sessionId },
+    headers: { "X-RemAI-Session": sessionId },
   });
   handleSnapshot(await response.json());
 }
@@ -133,7 +133,7 @@ function createEnsRecordList(ens) {
 
 function renderPassport(passport) {
   if (!passport) {
-    els.passportCards.innerHTML = `<article class="empty-card">Create a passport to see Flyta's narrowed relocation concept.</article>`;
+    els.passportCards.innerHTML = `<article class="empty-card">Create a passport to see RemAI's ENS relocation concept.</article>`;
     els.passportJson.textContent = "Create a passport to generate JSON.";
     return;
   }
@@ -206,8 +206,12 @@ async function safeRun(action) {
     await action();
   } catch (error) {
     setStreamStatus("Error", "failed");
-    els.activityLog.insertAdjacentHTML("afterbegin", `<div class="activity-item"><time>Now</time><div><span class="activity-stage blocked">error</span><strong>failed</strong><p>${escapeHtml(error.message)}</p></div></div>`);
+    insertActivityError(error.message);
   }
+}
+
+function insertActivityError(message) {
+  els.activityLog.insertAdjacentHTML("afterbegin", `<div class="activity-item"><time>Now</time><div><span class="activity-stage blocked">error</span><strong>failed</strong><p>${escapeHtml(message)}</p></div></div>`);
 }
 
 function escapeHtml(value) {
@@ -223,4 +227,3 @@ els.form.addEventListener("submit", createPassport);
 els.copyPassport.addEventListener("click", copyPassport);
 connectEventStream();
 getState();
-

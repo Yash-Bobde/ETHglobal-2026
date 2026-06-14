@@ -1,8 +1,8 @@
-﻿{
-  "name": "flyta-ens-passport",
+{
+  "name": "remai-ens-passport",
   "version": "0.1.0",
   "private": true,
-  "description": "Focused ENS integration demo: create a Flyta relocation passport from a Sepolia ENS name.",
+  "description": "Focused ENS integration demo: create a RemAI relocation passport from a Sepolia ENS name.",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
@@ -12,7 +12,8 @@
     "ethglobal",
     "ens",
     "sepolia",
-    "relocation"
+    "relocation",
+    "remai"
   ],
   "license": "MIT",
   "dependencies": {

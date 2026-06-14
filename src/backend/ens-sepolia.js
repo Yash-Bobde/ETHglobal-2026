@@ -45,7 +45,7 @@ const v2RegistryAbi = [
   },
 ];
 
-const agentTextKeys = ["url", "flyta.capabilities", "flyta.route", "flyta.policy"];
+const agentTextKeys = ["url", "remai.capabilities", "remai.route", "remai.policy"];
 let cachedClient;
 
 async function getClient() {
