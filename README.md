@@ -40,6 +40,8 @@ Open:
 http://localhost:3018
 ```
 
+To share the demo, keep the local server running and expose `http://localhost:3018` through your envshare or tunneling tool.
+
 ## Configure Sepolia ENS
 
 Create:
@@ -53,18 +55,6 @@ Add your Sepolia RPC URL:
 ```powershell
 SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
 ```
-
-## Deploy On Vercel
-
-Use the **Other** framework preset.
-
-Add this environment variable in Vercel Project Settings:
-
-```text
-SEPOLIA_RPC_URL=your_sepolia_rpc_url
-```
-
-RemAI includes Vercel API functions under `api/`, so the deployed app can call `/api/passport`, `/api/ens/config`, and `/api/ens/resolve` without relying on the local `server.js` process.
 
 ## Get Sepolia ETH
 
