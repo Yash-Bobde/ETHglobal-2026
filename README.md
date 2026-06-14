@@ -54,6 +54,18 @@ Add your Sepolia RPC URL:
 SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
 ```
 
+## Deploy On Vercel
+
+Use the **Other** framework preset.
+
+Add this environment variable in Vercel Project Settings:
+
+```text
+SEPOLIA_RPC_URL=your_sepolia_rpc_url
+```
+
+RemAI includes Vercel API functions under `api/`, so the deployed app can call `/api/passport`, `/api/ens/config`, and `/api/ens/resolve` without relying on the local `server.js` process.
+
 ## Get Sepolia ETH
 
 Use either faucet:

@@ -3,6 +3,11 @@ const path = require("path");
 
 const root = path.resolve(__dirname, "..");
 const required = [
+  "api/_engine.js",
+  "api/ens/config.js",
+  "api/ens/resolve.js",
+  "api/passport.js",
+  "api/state.js",
   "assets/remai-logo.svg",
   "index.html",
   "server.js",
@@ -13,6 +18,7 @@ const required = [
   "src/backend/env.js",
   "README.md",
   "package.json",
+  "vercel.json",
 ];
 
 const missing = required.filter((file) => !fs.existsSync(path.join(root, file)));
@@ -33,6 +39,8 @@ const checks = [
   ["ENS v2 dev registry address", files["src/backend/ens-sepolia.js"].includes("0xdedb92913a25abe1f7bcdd85d8a344a43b398b67")],
   ["ENS resolve route", files["server.js"].includes("/api/ens/resolve")],
   ["Passport route", files["server.js"].includes("/api/passport")],
+  ["Vercel passport function", files["api/passport.js"].includes("createPassport")],
+  ["Vercel ENS config function", files["api/ens/config.js"].includes("SEPOLIA_RPC_URL")],
   ["Real-time EventSource client", files["src/app.js"].includes("EventSource")],
   ["Per-page session IDs", files["src/app.js"].includes("createSessionId")],
   ["Session-isolated backend state", files["server.js"].includes("getSessionId") && files["server.js"].includes("sessions = new Map")],
