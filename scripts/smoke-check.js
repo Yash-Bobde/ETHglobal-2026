@@ -38,7 +38,7 @@ const checks = [
   ["Session-isolated backend state", files["server.js"].includes("getSessionId") && files["server.js"].includes("sessions = new Map")],
   ["No extra sponsor routes", !bundle.includes("/api/world") && !bundle.includes("World" + " ID")],
   ["No old multi-track routes", !bundle.includes("/api/" + "tasks/run") && !bundle.includes("/api/" + "wallet/authorize")],
-  ["README pool-prize scope", files["README.md"].includes("Integrate ENS")],
+  ["README product scope", files["README.md"].includes("shareable identity card")],
 ];
 
 const failed = checks.filter(([, ok]) => !ok);
