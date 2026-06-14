@@ -54,8 +54,6 @@ Add your Sepolia RPC URL:
 SEPOLIA_RPC_URL=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
 ```
 
-Do not commit `.env.local`.
-
 ## Get Sepolia ETH
 
 Use either faucet:
