@@ -37,7 +37,7 @@ npm run start
 Open:
 
 ```text
-http://localhost:3007
+http://localhost:3018
 ```
 
 ## Configure Sepolia ENS
@@ -91,12 +91,6 @@ remai.capabilities=ens_lookup,relocation_passport
 - `POST /api/ens/resolve` resolves an ENS name directly.
 - `POST /api/passport` resolves ENS and creates the RemAI relocation passport.
 - `POST /api/reset` clears local backend state.
-
-Example:
-
-```powershell
-Invoke-RestMethod -Method Post -Uri http://localhost:3007/api/passport -Headers @{ 'Content-Type' = 'application/json' } -Body '{"ensName":"yourname.eth","currentCity":"Washington, DC","destinationCity":"New York, NY","moveDate":"2026-08-20","priority":"commute","notes":"Starting a new job."}'
-```
 
 ## Smoke Check
 

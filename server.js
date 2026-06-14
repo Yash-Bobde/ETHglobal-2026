@@ -7,7 +7,7 @@ const { createPassportEngine } = require("./src/backend/agent-engine");
 const root = __dirname;
 loadLocalEnv(root);
 
-const port = Number(process.env.PORT || 3007);
+const port = Number(process.env.PORT || 3018);
 const sessions = new Map();
 const sessionClients = new Map();
 const mimeTypes = {
